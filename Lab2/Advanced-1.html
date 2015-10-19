@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>JavaScript</title>
+
+    <style type="text/css">
+      
+    </style>
+
+  </head>
+
+  <body>
+    
+    <script type="text/javascript">
+      
+        var Ball = {
+            this.xPos= xPos;
+            this.yPos= yPos;
+            this.r= r;
+            
+            move : function(newX,newY){
+                this.xPos += newX;
+                this.yPos += newY;
+            },
+            
+            resize : function(newR){
+                this.r = newR;
+            },
+            
+            contains : function(corX,corY){
+                //inside = true;
+                if(corX > this.xPos + this.r || 
+                   corX < this.xPos - this. r){
+                    return false;
+                }
+                if(corY > this.yPos + this.r || 
+                   corY < this.yPos - this. r){
+                    return false;
+                }
+                return true;
+            }
+            
+        };
+        
+    </script>
+
+  </body>
+
+</html>

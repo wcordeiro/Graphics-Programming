@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+        canvas {
+            border: 1px black solid;
+        }
+    </style>
+
+  </head>
+
+  <body>
+
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript">
+        
+      // Gets a handle to the element with id canvasOne.
+      var canvas = document.getElementById("canvas");
+      // Get a 2D context for the canvas.
+      var ctx = canvas.getContext("2d");
+        
+      // Ball Object
+        
+      var ball = {
+        position : { x : 10 , y : 10 }
+        , radius: 17
+        , velocity: {x: 0, y: 5}
+        , acceleration: {x: 0, y: 5}  
+      };
+        
+      var init = function (){
+        canvas.width = 400;
+        canvas.height = 400;
+      }
+      
+      var draw = function(){
+        ctx.beginPath();
+        ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);
+        ctx.fill();  
+      }
+      
+      var move = function(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);  
+        ball.position.y += ball.velocity.y;
+        draw();  
+        window.requestAnimationFrame(move);  
+      }
+      
+      init();
+      draw();
+      window.requestAnimationFrame(move);    
+
+    </script>
+
+  </body>
+
+</html>

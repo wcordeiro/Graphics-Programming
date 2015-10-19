@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+        canvas {
+            border: 1px black solid;
+        }
+    </style>
+
+  </head>
+
+  <body>
+
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript">
+        
+      // Gets a handle to the element with id canvasOne.
+      var canvas = document.getElementById("canvas");
+      // Get a 2D context for the canvas.
+      var ctx = canvas.getContext("2d");
+        
+      // Ball Object
+        
+      var ball = {
+        position : { x : 0 , y : 0 }
+        , radius: 10
+        , velocity: {x: 5, y: 5}
+        , acceleration: {x: 1, y: 1}  
+      };
+        
+      var init = function (){
+        canvas.width = 400;
+        canvas.height = 400;
+      }
+      
+     function Rectangle (x, y){
+         this.x = x;
+         this.y = y;
+         this.sizex = 40;
+         this.sizey = 30;
+         this.redraw = true;
+         
+         this.check = function(){
+            var part1 = Math.pow(ball.position.x - this.x,2);
+            var part2 = Math.pow(ball.position.y - this.y,2);
+            
+            var d = Math.sqrt((part1+part2));
+             
+            if(d < ball.radius)
+                return false;
+            else if(d + this.sizex < ball.radius)
+                return false;
+            else if(d - this.sizex < ball.radius)
+                return false;
+            else if(d + this.sizey < ball.radius)
+                return false;
+            else if(d - this.sizey < ball.radius)
+                return false;
+            else
+                return true;
+            return true;
+         }
+         
+         this.draw = function (){
+            if(this.check() && this.redraw){
+                ctx.fillStyle = "rgb(255, 0, 0)";
+                ctx.strokeStyle = "rgb(0, 0, 0)";
+                ctx.fillRect(this.x,this.y,this.sizex,this.sizey);
+                ctx.strokeRect(this.x,this.y,this.sizex,this.sizey);
+            }
+            else
+                this.redraw = false;
+         }
+      };
+      
+      var rec = [[null,null,null,null,null,null,null,null,null,null],
+                 [null,null,null,null,null,null,null,null,null,null],
+                 [null,null,null,null,null,null,null,null,null,null]];
+        
+      for(var i = 0; i < 3 ; i++){
+          for(var j = 0; j < 10 ; j++){
+            rec[i][j] = new Rectangle(j*40,i*30);
+              
+          }
+      }
+        
+      var start = false;    
+      
+      var draw = function(){  
+        ctx.fillStyle = "rgb(0, 0, 0)";  
+        ctx.beginPath();
+        ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);
+        ctx.fill();
+        if(start){  
+            for(var i = 0; i < 3 ; i++){  
+                for(var j = 0; j < 10 ; j++){  
+                    rec[i][j].draw();
+                }
+            }
+        }
+      }
+      
+      var move = function(){
+       ctx.clearRect(0, 0, canvas.width, canvas.height);  
+        
+        ball.velocity.y += ball.acceleration.y;
+	    ball.position.x += ball.velocity.x;
+        ball.position.y += ball.velocity.y;  
+        
+        //Left wall  
+        if(ball.position.x < ball.radius){
+            ball.position.x = ball.radius;
+            ball.velocity.x *= -1;
+        }
+        //Right Wall
+        else if(ball.position.x > canvas.width - ball.radius){
+            ball.position.x = canvas.width - ball.radius;
+            ball.velocity.x *= -1;
+        }
+        //Top Wall
+        if(ball.position.y < ball.radius){
+            ball.position.y = ball.radius;
+            ball.velocity.y *= -1;
+        }
+        //Down Wall
+        else if(ball.position.y > canvas.height - ball.radius){
+            ball.position.y = canvas.height - ball.radius;
+            ball.velocity.y *= -1;
+            start = true;
+        }
+        draw();  
+        window.requestAnimationFrame(move);  
+      }
+      
+      init();
+      draw();
+      window.requestAnimationFrame(move);    
+
+    </script>
+
+  </body>
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+      canvas {
+        border: 1px solid grey; 
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <canvas id="canvas-for-ball"></canvas>
+
+    <script type="text/javascript">
+
+      // Gets a handle to the element with id canvasOne.
+      var canvas = document.getElementById("canvas-for-ball");
+      // Get a 2D context for the canvas.
+      var ctx = canvas.getContext("2d");
+      var count = 1;    
+      // Make the fill style red.
+      ctx.fillStyle = "rgb(255, 0, 0)";
+      
+      canvas.addEventListener("click", function(event) { 
+        console.log(event);
+        if(count % 2 == 1){
+            ctx.fillStyle = "rgb(255, 0, 0)";
+        }
+        else{
+            ctx.fillStyle = "rgb(0, 0, 255)";
+        }
+        ctx.beginPath();
+        var mouseX = event.clientX - ctx.canvas.offsetLeft;
+        var mouseY = event.clientY - ctx.canvas.offsetTop;  
+        ctx.arc(mouseX, mouseY, 10, 0, 2 * Math.PI);
+        ctx.fill();
+        count = count + 1;  
+      });
+
+    </script>
+
+  </body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+      canvas {
+        border: 1px solid grey; 
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <canvas id="canvas-for-ball"></canvas>
+
+    <script type="text/javascript">
+
+      // Gets a handle to the element with id canvasOne.
+      var canvas = document.getElementById("canvas-for-ball");
+      // Get a 2D context for the canvas.
+      var ctx = canvas.getContext("2d");
+        
+      //Ball Object    
+      var ball = {
+        position: {x: canvas.width/2, y: canvas.height/2}
+        , radius: 17
+        , velocity: {x: 3, y: 0}
+        , acceleration: {x: 0, y: 0.1}
+      }    
+        
+      // Make the fill style red.
+      ctx.fillStyle = "rgb(255, 0, 0)";
+      ctx.beginPath();
+      ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);
+      ctx.fill();    
+      
+      window.addEventListener("keydown", function(event) { 
+        console.log(event);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);  
+        switch (event.key) {
+            case "ArrowDown":      
+              ball.position.y = ball.position.y + 10;
+              break;
+            case "ArrowUp":
+              ball.position.y = ball.position.y - 10;
+              break;
+            case "ArrowLeft":
+              ball.position.x = ball.position.x - 10;
+              break;
+            case "ArrowRight":
+              ball.position.x = ball.position.x + 10;
+              break;
+            default:
+              return;
+        }
+        if(ball.position.y + ball.radius > canvas.height) {
+            ball.position.y = canvas.height - ball.radius;
+        }
+        if(ball.position.y <= ball.radius){
+            ball.position.y = ball.radius;
+        }
+        if(ball.position.x + ball.radius > canvas.width) {
+            ball.position.x = canvas.width - ball.radius;
+        } 
+        if(ball.position.x <= ball.radius){
+            ball.position.x = ball.radius;
+        }  
+        ctx.beginPath();
+        ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);
+        ctx.fill();  
+      });
+
+    </script>
+
+  </body>
+
+</html>

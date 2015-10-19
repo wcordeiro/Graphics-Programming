@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+        canvas {
+            border: 1px black solid;
+        }
+    </style>
+
+  </head>
+
+  <body>
+
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript">
+        
+      // Gets a handle to the element with id canvasOne.
+      var canvas = document.getElementById("canvas");
+      // Get a 2D context for the canvas.
+      var ctx = canvas.getContext("2d");
+        
+      var init = function (){
+        canvas.width = 400;
+        canvas.height =400;
+      }
+      
+      init();
+
+    </script>
+
+  </body>
+
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+      body {
+          background-color: white;
+      }
+      
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <canvas id="canvas-for-ball"></canvas>
+
+    <script type="text/javascript">
+      // Gets a handle to the element with id canvasOne.
+      var canvas = document.getElementById("canvas-for-ball");
+      // Get a 2D context for the canvas.
+      var ctx = canvas.getContext("2d");
+      
+      // An object for the ball.
+      var ball = {
+        position: {x: 50, y: 10}
+        , radius: 3
+        , velocity: {x: 0, y: 5}
+      }
+      
+      // A function to repeat every time the animation loops.
+      function repeatme() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw the ball (stroked, not filled).
+        ctx.beginPath();
+        ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // Update the y location.
+        ball.position.y += ball.velocity.y;
+        
+        // Keep the animation going while the ball has not touched the canvas bottom.
+        if ((ball.position.y >= canvas.height - ball.radius) ||  (ball.position.y <= ball.radius))
+          ball.velocity.y = -ball.velocity.y;
+        
+        window.requestAnimationFrame(repeatme);
+      }
+      
+      // Get the animation going.
+      window.requestAnimationFrame(repeatme);
+    </script>
+
+  </body>
+
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <canvas id="canvas-for-ball" width="1000px" height="600px"></canvas>
+
+    <script type="text/javascript">
+      // Gets a handle to the element with id canvasOne.
+      var canvas = document.getElementById("canvas-for-ball");
+      // Get a 2D context for the canvas.
+      var ctx = canvas.getContext("2d");
+	  
+      // An object for the ball.
+      var ball = {
+        position: {x: 200, y: 10}
+        , radius: 3
+        , velocity: {x: 3, y: 0}
+	, acceleration: {x: 0, y: 0.1}
+      }
+      
+      // A function to repeat every time the animation loops.
+      function repeatme() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw the ball.
+	ctx.fillStyle = "rgb(255, 0, 0)";
+        ctx.beginPath();
+        ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);
+        ctx.fill();
+		
+	// Draw the text.
+	ctx.fillStyle = "rgb(150, 150, 150)";
+	ctx.font = "10px monospace";
+	ctx.fillText("P: (" + ("   " + parseFloat(ball.position.x).toFixed(2)).slice(-6) + "," + ("   " + parseFloat(ball.position.y).toFixed(2)).slice(-6) + ")", 880, 560);
+	ctx.fillText("V: (" + ("   " + parseFloat(ball.velocity.x).toFixed(2)).slice(-6) + "," + ("   " + parseFloat(ball.velocity.y).toFixed(2)).slice(-6) + ")", 880, 575);
+	ctx.fillText("A: (" + ("   " + parseFloat(ball.acceleration.x).toFixed(2)).slice(-6) + "," + ("   " + parseFloat(ball.acceleration.y).toFixed(2)).slice(-6) + ")", 880, 590);
+        
+        // Update the y location.
+	ball.velocity.y += ball.acceleration.y;
+	ball.position.x += ball.velocity.x;
+        ball.position.y += ball.velocity.y;
+		
+		
+	// Keep the animation going while the ball has not touched the canvas bottom.
+	// Note there's a bug here.
+        if ((ball.position.x >= canvas.width - ball.radius) ||  (ball.position.x <= ball.radius))
+          ball.velocity.x = -ball.velocity.x;    
+	if ((ball.position.y >= canvas.height - ball.radius) ||  (ball.position.y <= ball.radius))
+          ball.velocity.y = -ball.velocity.y;
+        
+        window.requestAnimationFrame(repeatme);
+      }
+      
+      // Get the animation going.
+      window.requestAnimationFrame(repeatme);
+    </script>
+
+  </body>
+
+</html>
