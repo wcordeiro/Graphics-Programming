@@ -6,7 +6,18 @@
   // Gets a handle to the element with id canvasOne.
   var canvas = document.getElementById("gamecanvas");
   // Get a 2D context for the canvas.
-  var ctx = canvas.getContext("2d");
+  var context = canvas.getContext("2d");
+  // Ball object
+  var ball = null;
+  // Paddle Object    
+  var paddle = null;
+  // Array of bricks (rectangules)
+  var bricks = [];
+  var BRICK_ROWS = 10;
+  var BRICKS_PER_ROW = 10;
+  var BRICK_WIDTH = 60;
+  var BRICK_HEIGHT = 13;
+  var BRICK_OFFSET = 3;
 
 
 /**
@@ -25,7 +36,7 @@ var Ball = function() {
                         x2 : this.x1 + this.radius,
                         y2 : this.y1 + this.radius
                     };
-    var ballVelocity = 3,
+    var ballVelocity = 3, //Auxiliar function.
             getRandomXVelocity = function() {
                 var randomNumber = Math.random();
                 if (randomNumber > 0.5) {
@@ -33,191 +44,379 @@ var Ball = function() {
                 }
                 return ballVelocity * -1;
             };
-    this.velocity = {
+    this.velocity = { //Velocity on X and Y
                         x : getRandomXVelocity(),
                         y : ballVelocity
                     };
   };
     
-    var ball = new Ball(); // Variable ball (object ball)
-    
-  var pad = {
-    position : { x : 0 , y : 350 }
-    , size : { x : 70 , y : 10 }
-    , redirect : true
+/**
+* A Paddle.
+* @constructor
+*/
+ var Paddle = function() {
+    this.width = 100; //Size on X
+    this.height = 15; //Size on Y
+    this.color = '#000'; //Color of the paddle
+    this.position = { //Position was divided in four variables in order to faciltate collision detection
+                        x1 : (canvas.width - this.width) / 2,
+                        y1 : canvas.height - this.height,
+                        x2 : this.x1 + this.width,
+                        y2 : canvas.height
+                    };
+}
 
-    ,check : function(){
-      //  var part1 = Math.pow(ball.position.x - this.position.x,2);
-        //var part2 = Math.pow(ball.position.y - this.position.y,2);
-
-        //var d = Math.sqrt((part1+part2));
-
-        if (ball.position.x + ball.radius < pad.position.x || ball.position.x - ball.radius > pad.position.x + pad.size.x)
-            return true;
-
-        else if (ball.position.y + ball.radius < pad.position.y)
-            return true;
-        else
-            return false;
-     }  
-
-    , draw : function (){
-         ctx.fillStyle = "rgb(0, 255, 0)";
-         ctx.strokeStyle = "rgb(0, 0, 0)";
-         ctx.fillRect(this.position.x,this.position.y,this.size.x,this.size.y);
-         ctx.strokeRect(this.position.x,this.position.y,this.size.x,this.size.y);
-         if(!this.check() && this.redirect){
-            start = true; 
-            this.redirect = false; 
-            ball.velocity.y *= -1;
-            if(ball.position.x > this.x){
-                ball.velocity.x *= -1;
-            }
-         }
-         else if(this.check()){
-            this.redirect = true;
-         }
-    }
-  };
-
-  var init = function (){
-    canvas.width = 400;
-    canvas.height = 400;
-  }
-
-  var collideCheck = false;
-
- function Rectangle (x, y){
-     this.x = x;
-     this.y = y;
-     this.sizex = 40;
-     this.sizey = 30;
-     this.redraw = true;
-
-     this.check = function(){
-        var part1 = Math.pow(ball.position.x - this.x,2);
-        var part2 = Math.pow(ball.position.y - this.y,2);
-
-        var d = Math.sqrt((part1+part2));
-
-        if(collideCheck)
-            return true;
-
-        if(d < ball.radius)
-            return false;
-        else if(d + this.sizex < ball.radius)
-            return false;
-        else if(d - this.sizex < ball.radius)
-            return false;
-     /*   else if(d + this.sizey < ball.radius)
-            return false;
-        else if(d - this.sizey < ball.radius)
-            return false;*/
-        else
-            return true;
-        return true;
-     }
-
-     this.draw = function (){
-        if(this.check() && this.redraw){
-            ctx.fillStyle = "rgb(255, 0, 0)";
-            ctx.strokeStyle = "rgb(0, 0, 0)";
-            ctx.fillRect(this.x,this.y,this.sizex,this.sizey);
-            ctx.strokeRect(this.x,this.y,this.sizex,this.sizey);
+/**
+ * Builds a rectangle of bricks.
+ * @param {array} colors is an array of colors.
+ */
+function drawRectangle(colors) {
+    var i,
+        j,
+        brickNum = 0,
+        brickY = BRICK_OFFSET,
+        brickX = 0,
+        brick = null;
+    for (i = 0; i < BRICK_ROWS; i += 1) {
+        brickX = BRICK_OFFSET;
+        for (j = 0; j < BRICKS_PER_ROW; j += 1) {
+            brick = {
+                x1: brickX,
+                y1: brickY,
+                x2: brickX + BRICK_WIDTH,
+                y2: brickY + BRICK_HEIGHT,
+                visible: true,
+                color: colors[i]
+            };
+            bricks[brickNum] = brick;
+            brickX += BRICK_WIDTH + BRICK_OFFSET;
+            brickNum += 1;
         }
-        else{
-            //Collisons treat
-            if(this.redraw){
-                pad.redirect = true;
-                ball.velocity.y = 28;
-                if(ball.position.x > this.x){
-                    ball.velocity.x *= -1;
-                }
-                collideCheck = true;
+        brickY += BRICK_HEIGHT + BRICK_OFFSET;
+    }
+}
+
+/**
+* Checks to see if the ball has collided with the wall.
+*/
+
+function wallCollisionCheck() {
+    if ((ball.position.x1 <= 0) || (ball.position.x2 >= canvas.width)) {
+        ball.velocity.x = -ball.velocity.x;
+    } 
+    else if ((ball.position.y1 <= 0)) {
+            ball.velocity.y = -ball.velocity.y;
+            ball.center.y += 2;
+    } 
+    else if (ball.position.y2 >= canvas.height) {
+            ball.velocity.y = 0;
+            //loseTurn();
+    }
+}
+
+/**
+ * Checks to see if the ball has collided with the ball.
+ */
+function paddleCollisionCheck() {
+   // console.log(ball.position.x1,paddle.position.x1,ball.position.y2,paddle.position.y2,isColliding(ball,paddle));
+    if ( //Check Collision on the Right
+        (ball.position.x1 < paddle.position.x1 &&
+         ball.position.x1 < paddle.position.x2 &&
+         ball.position.x2 > paddle.position.x1 &&
+         ball.position.x2 < paddle.position.x2 &&
+         ball.position.y1 > paddle.position.y1 &&
+         ball.position.y1 < paddle.position.y2 &&
+         ball.position.y2 > paddle.position.y1 &&
+         ball.position.y2 < paddle.position.y2) 
+        || //Check Collision on the Left
+        (ball.position.x1 > paddle.position.x1 &&  
+         ball.position.x1 < paddle.position.x2 &&
+         ball.position.x2 > paddle.position.x1 &&
+         ball.position.x2 > paddle.position.x2 &&
+         ball.position.y1 > paddle.position.y1 &&
+         ball.position.y1 < paddle.position.y2 &&
+         ball.position.y2 > paddle.position.y1 &&  
+         ball.position.y2 < paddle.position.y2)
+       ) {
+            ball.velocity.x = -ball.velocity.x;
+    } 
+    else if ( //Check Collision on the Top Left
+        (ball.position.x1 > paddle.position.x1 && 
+        ball.position.x1 < paddle.position.x2 && 
+        ball.position.x2 > paddle.position.x1 && 
+        ball.position.x2 > paddle.position.x2 && 
+        ball.position.y1 > paddle.position.y1 && 
+        ball.position.y1 < paddle.position.y2 &&
+        ball.position.y2 > paddle.position.y1 &&
+        ball.position.y2 > paddle.position.y2) 
+        || //Check Collision on the Top Middle
+        (ball.position.x1 > paddle.position.x1 && 
+        ball.position.x1 < paddle.position.x2 && 
+        ball.position.x2 > paddle.position.x1 &&
+        ball.position.x2 < paddle.position.x2 &&  
+        ball.position.y1 > paddle.position.y1 &&
+        ball.position.y1 < paddle.position.y2 &&
+        ball.position.y2 > paddle.position.y1 &&
+        ball.position.y2 > paddle.position.y2)
+        || //Check Collision on the Top Right
+        (ball.position.x1 < paddle.position.x1 &&
+        ball.position.x1 < paddle.position.x2 &&
+        ball.position.x2 > paddle.position.x1 &&  
+        ball.position.x2 < paddle.position.x2 && 
+        ball.position.y1 > paddle.position.y1 &&
+        ball.position.y1 < paddle.position.y2 &&
+        ball.position.y2 > paddle.position.y1 &&
+        ball.position.y2 > paddle.position.y2)
+        || //Check Collision on the Bottom Left
+        (ball.position.x1 > paddle.position.x1 &&
+        ball.position.x1 < paddle.position.x2 &&
+        ball.position.x2 > paddle.position.x1 &&
+        ball.position.x2 > paddle.position.x2 &&
+        ball.position.y1 < paddle.position.y1 &&
+        ball.position.y1 < paddle.position.y2 &&
+        ball.position.y2 > paddle.position.y1 && 
+        ball.position.y2 < paddle.position.y2)
+        || //Check Collision on the Bottom Middle
+        (ball.position.x1 > paddle.position.x1 && 
+        ball.position.x1 < paddle.position.x2 && 
+        ball.position.x2 > paddle.position.x1 && 
+        ball.position.x2 < paddle.position.x2 &&
+        ball.position.y1 < paddle.position.y1 &&  
+        ball.position.y1 < paddle.position.y2 &&
+        ball.position.y2 > paddle.position.y1 &&  
+        ball.position.y2 < paddle.position.y2)
+        || //Check Collision on the Bottom Right
+       (ball.position.x1 < paddle.position.x1 &&
+        ball.position.x1 < paddle.position.x2 &&
+        ball.position.x2 > paddle.position.x1 && 
+        ball.position.x2 < paddle.position.x2 &&
+        ball.position.y1 < paddle.position.y1 &&
+        ball.position.y1 < paddle.position.y2 &&
+        ball.position.y2 > paddle.position.y1 &&
+        ball.position.y2 < paddle.position.y2)
+        ) {
+            ball.velocity.y = -ball.velocity.y;
+            ball.center.y -= 2;
+            
+    }
+}
+
+/**
+ * Checks to see if the ball has collided with the wall.
+ */
+function brickCollisionCheck() {
+    var i,
+        length = bricks.length;
+
+    for (i = 0; i < length; i += 1) {
+        if (bricks[i].visible === true) {
+            if ((//Check Collision on the Right
+                (ball.position.x1 < bricks[i].x1 &&
+                 ball.position.x1 < bricks[i].x2 &&
+                 ball.position.x2 > bricks[i].x1 &&
+                 ball.position.x2 < bricks[i].x2 &&
+                 ball.position.y1 > bricks[i].y1 &&
+                 ball.position.y1 < bricks[i].y2 &&
+                 ball.position.y2 > bricks[i].y1 &&
+                 ball.position.y2 < bricks[i].y2) 
+                || //Check Collision on the Left
+                (ball.position.x1 > bricks[i].x1 &&  
+                 ball.position.x1 < bricks[i].x2 &&
+                 ball.position.x2 > bricks[i].x1 &&
+                 ball.position.x2 > bricks[i].x2 &&
+                 ball.position.y1 > bricks[i].y1 &&
+                 ball.position.y1 < bricks[i].y2 &&
+                 ball.position.y2 > bricks[i].y1 &&  
+                 ball.position.y2 < bricks[i].y2)
+               ) || 
+                (( //Check Collision on the Top Left
+                 (ball.position.x1 > bricks[i].x1 && 
+                 ball.position.x1 < bricks[i].x2 && 
+                 ball.position.x2 > bricks[i].x1 && 
+                 ball.position.x2 > bricks[i].x2 && 
+                 ball.position.y1 > bricks[i].y1 && 
+                 ball.position.y1 < bricks[i].y2 &&
+                 ball.position.y2 > bricks[i].y1 &&
+                 ball.position.y2 > bricks[i].y2) 
+                 || //Check Collision on the Top Middle
+                 (ball.position.x1 > bricks[i].x1 && 
+                 ball.position.x1 < bricks[i].x2 && 
+                 ball.position.x2 > bricks[i].x1 &&
+                 ball.position.x2 < bricks[i].x2 &&  
+                 ball.position.y1 > bricks[i].y1 &&
+                 ball.position.y1 < bricks[i].y2 &&
+                 ball.position.y2 > bricks[i].y1 &&
+                 ball.position.y2 > bricks[i].y2)
+                 || //Check Collision on the Top Right
+                 (ball.position.x1 < bricks[i].x1 &&
+                 ball.position.x1 < bricks[i].x2 &&
+                 ball.position.x2 > bricks[i].x1 &&  
+                 ball.position.x2 < bricks[i].x2 && 
+                 ball.position.y1 > bricks[i].y1 &&
+                 ball.position.y1 < bricks[i].y2 &&
+                 ball.position.y2 > bricks[i].y1 &&
+                 ball.position.y2 > bricks[i].y2))
+                 ||( //Check Collision on the Bottom Left
+                 (ball.position.x1 > bricks[i].x1 &&
+                 ball.position.x1 < bricks[i].x2 &&
+                 ball.position.x2 > bricks[i].x1 &&
+                 ball.position.x2 > bricks[i].x2 &&
+                 ball.position.y1 < bricks[i].y1 &&
+                 ball.position.y1 < bricks[i].y2 &&
+                 ball.position.y2 > bricks[i].y1 && 
+                 ball.position.y2 < bricks[i].y2)
+                 || //Check Collision on the Bottom Middle
+                 (ball.position.x1 > bricks[i].x1 && 
+                 ball.position.x1 < bricks[i].x2 && 
+                 ball.position.x2 > bricks[i].x1 && 
+                 ball.position.x2 < bricks[i].x2 &&
+                 ball.position.y1 < bricks[i].y1 &&  
+                 ball.position.y1 < bricks[i].y2 &&
+                 ball.position.y2 > bricks[i].y1 &&  
+                 ball.position.y2 < bricks[i].y2)
+                 || //Check Collision on the Bottom Right
+                  (ball.position.x1 < bricks[i].x1 &&
+                 ball.position.x1 < bricks[i].x2 &&
+                 ball.position.x2 > bricks[i].x1 && 
+                 ball.position.x2 < bricks[i].x2 &&
+                 ball.position.y1 < bricks[i].y1 &&
+                 ball.position.y1 < bricks[i].y2 &&
+                 ball.position.y2 > bricks[i].y1 &&
+                 ball.position.y2 < bricks[i].y2)))) 
+            {
+                        bricks[i].visible = false;
+                    //    score += 100;
+                     //   bricksRemaining -= 1;
+                        ball.velocity.y = -ball.velocity.y;
+                        ball.center.y -= 2;
             }
-            this.redraw = false;               
-        }
-     }
-  };
-
-  var rec = [[null,null,null,null,null,null,null,null,null,null],
-             [null,null,null,null,null,null,null,null,null,null],
-             [null,null,null,null,null,null,null,null,null,null]];
-
-  for(var i = 0; i < 2 ; i++){
-      for(var j = 0; j < 10 ; j++){
-        rec[i][j] = new Rectangle(j*40,i*30);
-
-      }
-  }
-
-  var start = false;    
-
-  var draw = function(){ 
-    collideCheck = false;  
-    ctx.fillStyle = "rgb(0, 0, 0)";  
-    ctx.beginPath();
-    ctx.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);
-    ctx.fill();
-    pad.draw();  
-    if(start){  
-        for(var i = 0; i < 2 ; i++){  
-            for(var j = 0; j < 10 ; j++){ 
-                    rec[i][j].draw();
-            }
         }
     }
-  }
+}
 
-  var move = function(){
-   ctx.clearRect(0, 0, canvas.width, canvas.height);  
-    console.log(ball.position.y + " " + ball.acceleration.y + " " + ball.velocity.y);
+/**
+ * Resize the Canvas
+ */
+function reziseCanvas(){
+    canvas.width = 600;
+    canvas.height = 600;
+}
 
-    ball.velocity.y += ball.acceleration.y;
-    ball.position.x += ball.velocity.x;
-    ball.position.y += ball.velocity.y;  
+/**
+ * Draws the ball.
+ */
+function drawBall() {
+    context.beginPath();
+    context.arc(ball.center.x, ball.center.y, ball.radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.stroke();
+    context.fill();
+}
 
-    //Left wall  
-    if(ball.position.x < ball.radius){
-        ball.position.x = ball.radius;
-        ball.velocity.x *= -1;
-    }
-    //Right Wall
-    else if(ball.position.x > canvas.width - ball.radius){
-        ball.position.x = canvas.width - ball.radius;
-        ball.velocity.x *= -1;
-    }
-    //Top Wall
-    if(ball.position.y < ball.radius){
-        ball.position.y = ball.radius;
-        ball.velocity.y *= -1;
-        pad.redirect = true;
-    }
-    //Down Wall
-    else if(ball.position.y > canvas.height - ball.radius){
-        ctx.clearRect(0, 0, canvas.width, canvas.height); 
-        ctx.fillText("You Lose",200,200);
-        return;
-    }
-    draw();  
-    window.requestAnimationFrame(move);  
-  }
+/**
+ * Draws the paddle.
+ */
+function drawPaddle() {
+    context.fillStyle = paddle.color;
+    context.fillRect(paddle.position.x1, paddle.position.y1, paddle.width, paddle.height);
+}
 
-  window.addEventListener("keydown", function(event) {  
+/**
+ * Loads the colors of the bricks into an array and then returns the
+ * array.
+ * @return {array} color an array of colors.
+ */
+function loadBrick() {
+    var red = '#ff0000',
+        black = '#000000',
+        yellow = '#ffff00',
+        green = '#00ff00',
+        darkBlue = '#0000ff',
+        colors = [red, red, black, black, yellow, yellow, green,
+            green, darkBlue, darkBlue];
+    drawRectangle(colors);
+}
+
+
+/**
+ * Draws the bricks.
+ */
+function drawBricks() {
+    var i = 0,
+        length = bricks.length,
+        x1 = 0,
+        y1 = 0,
+        x2 = 0,
+        y2 = 0,
+        color = '';
+    for (i = 0; i < length; i += 1) {
+        if (bricks[i].visible === true) {
+            x1 = bricks[i].x1;
+            y1 = bricks[i].y1;
+            x2 = BRICK_WIDTH;
+            y2 = BRICK_HEIGHT;
+            color = bricks[i].color;
+            context.fillStyle = color;
+            context.fillRect(x1, y1, x2, y2);
+        }
+    }
+}
+
+/**
+ * Move the ball arround respecting the colissions
+ */
+function moveBall() {
+    context.clearRect(0, 0, canvas.width, canvas.height);  
+    ball.center.x += ball.velocity.x;
+    ball.center.y += ball.velocity.y;
+    ball.position.x1 = ball.center.x - ball.radius;
+    ball.position.y1 = ball.center.y - ball.radius;
+    ball.position.x2 = ball.center.x + ball.radius;
+    ball.position.y2 = ball.center.y + ball.radius;
+    wallCollisionCheck();
+    paddleCollisionCheck();
+    brickCollisionCheck();
+    drawBall();
+    drawPaddle();
+    drawBricks();
+    window.requestAnimationFrame(moveBall); 
+}
+
+/**
+ * Move the paddle base on the keyboard
+ */
+window.addEventListener("keydown", function(event) { 
+    var offset = 0;
     switch (event.key) {
         case "ArrowLeft":
-          pad.position.x = pad.position.x - 30;
-          break;
+            offset = -20;
+            break;
         case "ArrowRight":
-          pad.position.x = pad.position.x + 30;
-          break;
+            offset = 20;
+            break;
         default:
-          return;
+            return;
     }
-    pad.draw();
-  });
+    paddle.position.x2 = paddle.position.x1 + paddle.width;
+    if ((paddle.position.x1 >= 0) && (paddle.position.x2 <= canvas.width)) {
+        paddle.position.x1 += offset;
+        if (paddle.position.x1 <= 0) {
+            paddle.position.x1 = 1;
+        } 
+        else if (paddle.position.x1 >= canvas.width - paddle.width) {
+            paddle.position.x1 = canvas.width - paddle.width;
+        }
+    }
+    drawPaddle();
+    paddleCollisionCheck();
+});
 
 
-  init();
-  draw();
-  window.requestAnimationFrame(move);
+reziseCanvas();
+ball = new Ball();
+paddle = new Paddle();
+drawBall();
+drawPaddle();
+loadBrick();
+drawBricks();
+window.requestAnimationFrame(moveBall); 
