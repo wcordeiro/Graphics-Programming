@@ -18,6 +18,16 @@
   var BRICK_WIDTH = 60;
   var BRICK_HEIGHT = 13;
   var BRICK_OFFSET = 3;
+  // Variable with holds the lifes
+  var turn;
+  // Score
+  var score;
+  //Quantity of bricks
+  var bricksRemaining = BRICK_ROWS*BRICKS_PER_ROW;
+  //Handle the increase of the speed
+  var lastscore = bricksRemaining % BRICK_ROWS;    
+  // End Game variable
+  var endGame;
 
 
 /**
@@ -36,7 +46,7 @@ var Ball = function() {
                         x2 : this.x1 + this.radius,
                         y2 : this.y1 + this.radius
                     };
-    var ballVelocity = 3, //Auxiliar function.
+    var ballVelocity = 2.5, //Auxiliar function.
             getRandomXVelocity = function() {
                 var randomNumber = Math.random();
                 if (randomNumber > 0.5) {
@@ -109,8 +119,8 @@ function wallCollisionCheck() {
             ball.center.y += 2;
     } 
     else if (ball.position.y2 >= canvas.height) {
-            ball.velocity.y = 0;
-            //loseTurn();
+            ball.velocity.y = -ball.velocity.y;
+            loseTurn();
     }
 }
 
@@ -285,8 +295,12 @@ function brickCollisionCheck() {
                  ball.position.y2 < bricks[i].y2)))) 
             {
                         bricks[i].visible = false;
-                    //    score += 100;
-                     //   bricksRemaining -= 1;
+                        score += 100;
+                        bricksRemaining -= 1;
+                        if(bricksRemaining % BRICK_ROWS < lastscore){
+                            lastscore = bricksRemaining % BRICK_ROWS;
+                            ball.velocity.y += 0.2;
+                        }
                         ball.velocity.y = -ball.velocity.y;
                         ball.center.y -= 2;
             }
@@ -311,6 +325,14 @@ function drawBall() {
     context.closePath();
     context.stroke();
     context.fill();
+}
+
+/**
+ * This function is run when a player loses a turn.
+ */
+function loseTurn() {
+    turn -= 1;
+    ball = new Ball();
 }
 
 /**
@@ -366,20 +388,30 @@ function drawBricks() {
  * Move the ball arround respecting the colissions
  */
 function moveBall() {
+    console.log(ball.velocity.y,ball.velocity.x);
     context.clearRect(0, 0, canvas.width, canvas.height);  
-    ball.center.x += ball.velocity.x;
-    ball.center.y += ball.velocity.y;
-    ball.position.x1 = ball.center.x - ball.radius;
-    ball.position.y1 = ball.center.y - ball.radius;
-    ball.position.x2 = ball.center.x + ball.radius;
-    ball.position.y2 = ball.center.y + ball.radius;
-    wallCollisionCheck();
-    paddleCollisionCheck();
-    brickCollisionCheck();
-    drawBall();
-    drawPaddle();
-    drawBricks();
-    window.requestAnimationFrame(moveBall); 
+    if(endGame != "play"){
+        gameOver();
+    //    return;
+    }
+    else{
+        ball.center.x += ball.velocity.x;
+        ball.center.y += ball.velocity.y;
+        ball.position.x1 = ball.center.x - ball.radius;
+        ball.position.y1 = ball.center.y - ball.radius;
+        ball.position.x2 = ball.center.x + ball.radius;
+        ball.position.y2 = ball.center.y + ball.radius;
+        wallCollisionCheck();
+        paddleCollisionCheck();
+        brickCollisionCheck();
+        drawBall();
+        drawPaddle();
+        drawBricks();
+        drawScore();
+        drawTurns();
+        exitGameCheck();
+        window.requestAnimationFrame(moveBall);    
+    } 
 }
 
 /**
@@ -389,10 +421,10 @@ window.addEventListener("keydown", function(event) {
     var offset = 0;
     switch (event.key) {
         case "ArrowLeft":
-            offset = -20;
+            offset = -30;
             break;
         case "ArrowRight":
-            offset = 20;
+            offset = 30;
             break;
         default:
             return;
@@ -411,12 +443,115 @@ window.addEventListener("keydown", function(event) {
     paddleCollisionCheck();
 });
 
+/**
+ * Draws the score.
+ */
+function drawScore() {
+    context.textAlign = 'left';
+    context.fillStyle = '#000000';
+    context.font = '15px arial';
+    context.textBaseline = 'top';
+    context.fillText('Score: ' + score, 30,
+        canvas.height - 40);
+}
 
-reziseCanvas();
-ball = new Ball();
-paddle = new Paddle();
-drawBall();
-drawPaddle();
-loadBrick();
-drawBricks();
-window.requestAnimationFrame(moveBall); 
+/**
+ * Draws the turns on the screen.
+ */
+function drawTurns() {
+    context.textAlign = 'left';
+    context.fillStyle = '#000000';
+    context.font = '15px arial';
+    context.textBaseline = 'top';
+    context.fillText('Turns: ' + turn, canvas.width - 100,
+        canvas.height - 40);
+}
+
+/**
+ * Gets the variables ready for the game.
+ */
+var initGame = function(){
+    reziseCanvas();
+    endGame = "play";
+    turn = 3;
+    score = 0;
+    ball = new Ball();
+    paddle = new Paddle();
+    drawBall();
+    drawPaddle();
+    loadBrick();
+    drawBricks();
+    drawScore();
+    bricksRemaining = BRICK_ROWS*BRICKS_PER_ROW;
+    lastscore = bricksRemaining % BRICK_ROWS; 
+    drawTurns();
+    window.requestAnimationFrame(moveBall); 
+}
+
+/**
+ * Check the win or defeat
+ */
+function exitGameCheck() {
+    if (bricksRemaining == 0) {
+        endGame = "Win";
+        gameOver();
+    } 
+    else if (turn == 0) {
+        endGame = "Defeat";
+        gameOver();
+    }
+}
+
+/**
+ * Game Over Screen
+ */
+var gameOver = function(){
+    $(canvas).bind('click', restartGame);
+    var x = canvas.width / 2,
+        y = 175;
+    context.textAlign = 'center';
+    context.fillStyle = '#000000';
+    context.font = '30px Verdana bold';
+    context.textBaseline = 'top';
+    context.fillText(endGame.toUpperCase(), x, y);
+    context.font = '15px Arial';
+    context.fillStyle = '#000000';
+    context.fillText('Click on screen to restart', x, y + 125);
+}
+
+/**
+ * Draws the start screen.
+ */
+function drawStartScreen() {
+    reziseCanvas();
+    $(canvas).bind('click', initGame);
+    var x = canvas.width / 2,
+        y = 175;
+    context.textAlign = 'center';
+    context.fillStyle = '#000000';
+    context.font = '30px Verdana bold';
+    context.textBaseline = 'top';
+    context.fillText('Brick Breaker', x, y);
+    context.font = '15px Arial';
+    context.fillStyle = '#000000';
+    context.fillText('Click on screen to start', x, y + 125);
+}
+
+var restartGame = function (){
+    reziseCanvas();
+    endGame = "play";
+    turn = 3;
+    score = 0;
+    ball = new Ball();
+    paddle = new Paddle();
+    drawBall();
+    drawPaddle();
+    loadBrick();
+    drawBricks();
+    drawScore();
+    bricksRemaining = BRICK_ROWS*BRICKS_PER_ROW;
+    lastscore = bricksRemaining % BRICK_ROWS; 
+    drawTurns();
+}
+
+drawStartScreen();
