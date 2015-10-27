@@ -388,7 +388,6 @@ function drawBricks() {
  * Move the ball arround respecting the colissions
  */
 function moveBall() {
-    console.log(ball.velocity.y,ball.velocity.x);
     context.clearRect(0, 0, canvas.width, canvas.height);  
     if(endGame != "play"){
         gameOver();
