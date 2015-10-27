@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>SVG</title>
+
+    <style type="text/css">
+      circle{
+        fill: red;
+        stroke: black;
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <svg>
+        <rect x="10" y="10" width="100" height="200" fill="blue" />
+        <circle id="my-circle" cx="100" cy="100" r="20" />
+        <text x="50" y="50" font-size="24" fill="green">Wilson</text>
+    </svg>
+    <script type="text/javascript">
+        var circle = document.getElementById("my-circle");
+        setTimeout(function(){
+        circle.setAttributeNS(null, "cx", 120);
+        circle.setAttributeNS(null, "cy", 120);
+        },1000);       
+    </script>
+
+  </body>
+
+</html>
