@@ -1,32 +1,32 @@
 function isCollidingTopLeft(a,b){
-    return  a.position.x1 > b.position.x1 && 
-            a.position.x1 < b.position.x2 && 
-            a.position.x2 > b.position.x1 && 
-            a.position.x2 > b.position.x2 && 
-            a.position.y1 > b.position.y1 && 
+    return  a.position.x1 >= b.position.x1 && 
+            a.position.x1 <= b.position.x2 && 
+            a.position.x2 >= b.position.x1 && 
+            a.position.x2 >= b.position.x2 && 
+            a.position.y1 >= b.position.y1 && 
             a.position.y1 < b.position.y2 &&
-            a.position.y2 > b.position.y1 &&
-            a.position.y2 > b.position.y2; 
+            a.position.y2 >= b.position.y1 &&
+            a.position.y2 >= b.position.y2; 
 }
 function isCollidingTopMiddle(a,b){
-    return  a.position.x1 > b.position.x1 && 
+    return  a.position.x1 >= b.position.x1 && 
             a.position.x1 < b.position.x2 && 
-            a.position.x2 > b.position.x1 &&
+            a.position.x2 >= b.position.x1 &&
             a.position.x2 < b.position.x2 &&  
-            a.position.y1 > b.position.y1 &&
+            a.position.y1 >= b.position.y1 &&
             a.position.y1 < b.position.y2 &&
-            a.position.y2 > b.position.y1 &&
-            a.position.y2 > b.position.y2;
+            a.position.y2 >= b.position.y1 &&
+            a.position.y2 >= b.position.y2;
 }
 function isCollidingTopRight(a,b){
     return  a.position.x1 < b.position.x1 &&
             a.position.x1 < b.position.x2 &&
-            a.position.x2 > b.position.x1 &&  
+            a.position.x2 >= b.position.x1 &&  
             a.position.x2 < b.position.x2 && 
-            a.position.y1 > b.position.y1 &&
+            a.position.y1 >= b.position.y1 &&
             a.position.y1 < b.position.y2 &&
-            a.position.y2 > b.position.y1 &&
-            a.position.y2 > b.position.y2;
+            a.position.y2 >= b.position.y1 &&
+            a.position.y2 >= b.position.y2;
 }
 
 function isCollidingTop(a,b){
@@ -36,35 +36,35 @@ function isCollidingTop(a,b){
 }
 
 function isCollidingBottomLeft(a,b){
-    return  a.position.x1 > b.position.x1 &&
+    return  a.position.x1 >= b.position.x1 &&
             a.position.x1 < b.position.x2 &&
-            a.position.x2 > b.position.x1 &&
-            a.position.x2 > b.position.x2 &&
+            a.position.x2 >= b.position.x1 &&
+            a.position.x2 >= b.position.x2 &&
             a.position.y1 < b.position.y1 &&
             a.position.y1 < b.position.y2 &&
-            a.position.y2 > b.position.y1 && 
+            a.position.y2 >= b.position.y1 && 
             a.position.y2 < b.position.y2
 }
 
 function isCollidingBottomMiddle(a,b){
-    return  a.position.x1 > b.position.x1 && 
+    return  a.position.x1 >= b.position.x1 && 
             a.position.x1 < b.position.x2 && 
-            a.position.x2 > b.position.x1 && 
+            a.position.x2 >= b.position.x1 && 
             a.position.x2 < b.position.x2 &&
             a.position.y1 < b.position.y1 &&  
             a.position.y1 < b.position.y2 &&
-            a.position.y2 > b.position.y1 &&  
+            a.position.y2 >= b.position.y1 &&  
             a.position.y2 < b.position.y2
 }
 
 function isCollidingBottomRight(a,b){
     return  a.position.x1 < b.position.x1 &&
             a.position.x1 < b.position.x2 &&
-            a.position.x2 > b.position.x1 && 
+            a.position.x2 >= b.position.x1 && 
             a.position.x2 < b.position.x2 &&
             a.position.y1 < b.position.y1 &&
             a.position.y1 < b.position.y2 &&
-            a.position.y2 > b.position.y1 &&
+            a.position.y2 >= b.position.y1 &&
             a.position.y2 < b.position.y2
 }
 
@@ -77,11 +77,11 @@ function isCollidingBottom(a,b){
 function isCollidingMiddleRight(a,b){
     return  a.position.x1 < b.position.x1 &&
             a.position.x1 < b.position.x2 &&
-            a.position.x2 > b.position.x1 &&
+            a.position.x2 >= b.position.x1 &&
             a.position.x2 < b.position.x2 &&
-            a.position.y1 > b.position.y1 &&
+            a.position.y1 >= b.position.y1 &&
             a.position.y1 < b.position.y2 &&
-            a.position.position.y2 > b.position.y1 &&
+            a.position.y2 >= b.position.y1 &&
             a.position.y2 < b.position.y2
 }
 
@@ -90,13 +90,13 @@ function isCollidingRight(a,b){
 }
 
 function isCollidingMiddleLeft(a,b){
-    return  a.position.x1 > b.position.x1 &&  
+    return  a.position.x1 >= b.position.x1 &&  
             a.position.x1 < b.position.x2 &&
-            a.position.x2 > b.position.x1 &&
-            a.position.x2 > b.position.x2 &&
-            a.position.y1 > b.position.y1 &&
+            a.position.x2 >= b.position.x1 &&
+            a.position.x2 >= b.position.x2 &&
+            a.position.y1 >= b.position.y1 &&
             a.position.y1 < b.position.y2 &&
-            a.position.y2 > b.position.y1 &&  
+            a.position.y2 >= b.position.y1 &&  
             a.position.y2 < b.position.y2
 }
 

@@ -110,7 +110,7 @@ function drawRectangle(colors) {
 * Checks to see if the ball has collided with the wall.
 */
 
-function wallCollisionCheck() {
+function brickBreakerWallCollisionCheck() {
     if ((ball.position.x1 <= 0) || (ball.position.x2 >= canvas.width)) {
         ball.velocity.x = -ball.velocity.x;
     } 
@@ -308,13 +308,6 @@ function brickCollisionCheck() {
     }
 }
 
-/**
- * Resize the Canvas
- */
-function reziseCanvas(){
-    canvas.width = 600;
-    canvas.height = 600;
-}
 
 /**
  * Draws the ball.
@@ -391,7 +384,7 @@ function moveBall() {
     context.clearRect(0, 0, canvas.width, canvas.height);  
     if(endGame != "play"){
         gameOver();
-    //    return;
+        window.requestAnimationFrame(moveBall);
     }
     else{
         ball.center.x += ball.velocity.x;
@@ -400,7 +393,7 @@ function moveBall() {
         ball.position.y1 = ball.center.y - ball.radius;
         ball.position.x2 = ball.center.x + ball.radius;
         ball.position.y2 = ball.center.y + ball.radius;
-        wallCollisionCheck();
+        brickBreakerWallCollisionCheck();
         paddleCollisionCheck();
         brickCollisionCheck();
         drawBall();
@@ -469,7 +462,7 @@ function drawTurns() {
 /**
  * Gets the variables ready for the game.
  */
-var initGame = function(){
+var initBrickBraker = function(){
     reziseCanvas();
     endGame = "play";
     $(canvas).unbind('click');
@@ -497,7 +490,7 @@ function exitGameCheck() {
         gameOver();
     } 
     else if (turn == 0) {
-        endGame = "Defeat";
+        endGame = "Game Over";
         gameOver();
     }
 }
@@ -506,7 +499,7 @@ function exitGameCheck() {
  * Game Over Screen
  */
 var gameOver = function(){
-    $(canvas).bind('click', restartGame);
+    $(canvas).bind('click', restartBrickGame);
     var x = canvas.width / 2,
         y = 175;
     context.textAlign = 'center';
@@ -522,9 +515,10 @@ var gameOver = function(){
 /**
  * Draws the start screen.
  */
-function drawStartScreen() {
+function drawStartBrickBreakerScreen() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
     reziseCanvas();
-    $(canvas).bind('click', initGame);
+    $(canvas).bind('click', initBrickBraker);
     var x = canvas.width / 2,
         y = 175;
     context.textAlign = 'center';
@@ -537,7 +531,7 @@ function drawStartScreen() {
     context.fillText('Click on screen to start', x, y + 125);
 }
 
-var restartGame = function (){
+var restartBrickGame = function (){
     reziseCanvas();
     $(canvas).unbind('click');
     endGame = "play";
@@ -554,5 +548,3 @@ var restartGame = function (){
     lastscore = bricksRemaining % BRICK_ROWS; 
     drawTurns();
 }
-
-drawStartScreen();

@@ -13,10 +13,6 @@
   var snake = null;
   // Control the snake direction
   var direction;
-  // Old direction flag
-  var oldDirection;
-  //Count Direction
-  var countDirection;
   // Eat on this round flag
   var food;
   // Flag game on or game off
@@ -73,9 +69,13 @@ var Apple = function (x,y){
  * Checks to see if the snake has collided with the apple.
  */
 var appleCollisionCheck = function(){
-    if(isColliding(snake.pieces[0],apple)){
-        snakeGrowth();
-        drawNewApple();
+    var i = 0;
+    for(i = 0; i < snake.size; i++){
+        if(isColliding(snake.pieces[i],apple)){
+            snakeGrowth();
+            drawNewApple();
+            return;
+        }
     }
 }
 
@@ -85,8 +85,12 @@ var appleCollisionCheck = function(){
 var snakeCollisionCheck = function(){
     var i = 0;
     for(i = 1; i < snake.size; i++){
-        if(isColliding(snake.pieces[0],snake.pieces[i])){
-            gameOver();
+        if(snake.pieces[0].position.x1 == snake.pieces[i].position.x1 &&
+           snake.pieces[0].position.x2 == snake.pieces[i].position.x2 &&
+           snake.pieces[0].position.y1 == snake.pieces[i].position.y1 &&
+           snake.pieces[0].position.y2 == snake.pieces[i].position.y2){
+                 gameOverSnake();
+                 return;
         }
     }
 }
@@ -94,42 +98,33 @@ var snakeCollisionCheck = function(){
 /**
  * Checks to see if the snake has collided with one of the walls.
  */
-var wallCollisionCheck = function(){
+var snakeWallCollisionCheck = function(){
     //Left wall  
-    if(snake.pieces[0].position.x1 < 0){
-        gameOver();
+    if(snake.pieces[0].position.x1 < 0  || snake.pieces[0].position.x2 < 0 ){
+        gameOverSnake();
     }
     //Right Wall
-    else if(snake.pieces[0].position.x1 > canvas.width){
-        gameOver();
+    else if(snake.pieces[0].position.x1 > canvas.width  || snake.pieces[0].position.x2 > canvas.width){
+        gameOverSnake();
     }
     //Top Wall
-    if(snake.pieces[0].position.y1 < 0){
-        gameOver();
+    if(snake.pieces[0].position.y1 < 0 || snake.pieces[0].position.y2 < 0){
+        gameOverSnake();
     }
     //Down Wall
-    else if(snake.pieces[0].position.y1 > canvas.height ){
-        gameOver();
+    else if(snake.pieces[0].position.y1 > canvas.height || snake.pieces[0].position.y2 > canvas.height ){
+        gameOverSnake();
     }
 }
 
-/**
- * Resize the Canvas
- */
-function reziseCanvas(){
-    canvas.width = 600;
-    canvas.height = 600;
-}
 
-var initGame = function (){
+var initSnake = function (){
     reziseCanvas();
     $(canvas).unbind('click');
     direction = "right";
     food = false;
     gameStatus = true;
-    countDirection = 0;
     score = 0;
-    oldDirection = direction;
     snake = new Snake();
     drawNewApple();
     drawScore();
@@ -141,7 +136,7 @@ var initGame = function (){
  * Draws the NewApple.
  */
 function drawNewApple() {
-    apple = new Apple(parseInt(Math.random() * canvas.width), parseInt(Math.random() * canvas.height));
+    apple = new Apple(parseInt(Math.random() * (canvas.width - 1) ), parseInt(Math.random() * (canvas.height - 1)));
     context.fillStyle = apple.color;
     context.fillRect(apple.position.x1, apple.position.y1, apple.width, apple.height);
 }
@@ -220,13 +215,14 @@ window.addEventListener("keydown", function(event) {
 function moveSnake() {
     if(!gameStatus){
         gameOver();
-        if (myreq)
-            window.cancelAnimationFrame(myreq);
-        myreq = 0;
+        myreq = window.requestAnimationFrame(moveSnake);    
     }
     else{
         setTimeout(function(){
             context.clearRect(0, 0, canvas.width, canvas.height);
+            snakeWallCollisionCheck();
+            snakeCollisionCheck();
+            appleCollisionCheck();
             var newx = snake.pieces[0].position.x1;
             var newy = snake.pieces[0].position.y1;
             switch(direction){
@@ -243,10 +239,8 @@ function moveSnake() {
                     newy += snake.pieces[0].height;
                     break;    
             }
-            wallCollisionCheck();
-            snakeCollisionCheck();
-            appleCollisionCheck();
-            drawScore();
+
+            drawSnakeScore();
             drawSnake(newx,newy);
             drawApple();
             myreq = window.requestAnimationFrame(moveSnake);
@@ -268,9 +262,9 @@ var snakeGrowth = function (){
 /**
  * Game Over Screen
  */
-var gameOver = function(){
+var gameOverSnake = function(){
     gameStatus = false;
-    $(canvas).bind('click', restartGame);
+    $(canvas).bind('click', restartSnakeGame);
     var x = canvas.width / 2,
         y = 175;
     context.textAlign = 'center';
@@ -286,9 +280,10 @@ var gameOver = function(){
 /**
  * Draws the start screen.
  */
-function drawStartScreen() {
+function drawStartSnakeScreen() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
     reziseCanvas();
-    $(canvas).bind('click', initGame);
+    $(canvas).bind('click', initSnake);
     var x = canvas.width / 2,
         y = 175;
     context.textAlign = 'center';
@@ -301,32 +296,27 @@ function drawStartScreen() {
     context.fillText('Click on screen to start', x, y + 125);
 }
 
-var restartGame = function (){
+var restartSnakeGame = function (){
     reziseCanvas();
     $(canvas).unbind('click');
     direction = "right";
     food = false;
     gameStatus = true;
     score = 0;
-    countDirection = 0;
-    oldDirection = direction;
     snake = new Snake();
     drawNewApple();
     drawScore();
     drawInitialSnake();
-    myreq = window.requestAnimationFrame(moveSnake);
 }
 
 /**
  * Draws the score.
  */
-function drawScore() {
+function drawSnakeScore() {
     context.textAlign = 'left';
     context.fillStyle = '#000000';
     context.font = '15px arial';
     context.textBaseline = 'top';
-    context.fillText('Score: ' + score, 30,
+    context.fillText('Score: ' + score, 10,
         canvas.height - 20);
 }
-
-drawStartScreen();
