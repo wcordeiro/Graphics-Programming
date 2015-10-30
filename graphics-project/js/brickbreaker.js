@@ -472,6 +472,7 @@ function drawTurns() {
 var initGame = function(){
     reziseCanvas();
     endGame = "play";
+    $(canvas).unbind('click');
     turn = 3;
     score = 0;
     ball = new Ball();
@@ -538,6 +539,7 @@ function drawStartScreen() {
 
 var restartGame = function (){
     reziseCanvas();
+    $(canvas).unbind('click');
     endGame = "play";
     turn = 3;
     score = 0;

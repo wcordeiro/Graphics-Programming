@@ -21,6 +21,10 @@
   var food;
   // Flag game on or game off
   var gameStatus;
+  // Score variable
+  var score;
+  // Variable used to cancel the request animation frame
+  var myreq;
 
 /**
 * A Snake Piece.
@@ -46,7 +50,7 @@ var Snake = function(){
     this.fillColor = "blue"; //Snake fill color
     this.strokeColor = "black" //Snake stroke color
     this.size = 3; //Size of the Snake, 3 is the initial size, 2 + HEAD
-    this.velocity = 10; //Snake velocity
+    this.velocity = 60; //Snake velocity, small the value is more speed
 }
 
 /**
@@ -119,15 +123,18 @@ function reziseCanvas(){
 
 var initGame = function (){
     reziseCanvas();
+    $(canvas).unbind('click');
     direction = "right";
     food = false;
     gameStatus = true;
     countDirection = 0;
+    score = 0;
     oldDirection = direction;
     snake = new Snake();
     drawNewApple();
+    drawScore();
     drawInitialSnake();
-    window.requestAnimationFrame(moveSnake);
+    myreq = window.requestAnimationFrame(moveSnake);
 }
 
 /**
@@ -211,39 +218,39 @@ window.addEventListener("keydown", function(event) {
  * Move the Snake arround respecting the colissions
  */
 function moveSnake() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
     if(!gameStatus){
         gameOver();
+        if (myreq)
+            window.cancelAnimationFrame(myreq);
+        myreq = 0;
     }
     else{
-        var newx = snake.pieces[0].position.x1;
-        var newy = snake.pieces[0].position.y1;
-        switch(direction){
-            case "right":
-                newx += snake.velocity;
-                break;
-            case "left":
-                newx -= snake.velocity;
-                break;
-            case "up":
-                newy -= snake.velocity;
-                break;
-            case "down":
-                newy += snake.velocity;
-                break;    
-        }
-        wallCollisionCheck();
-        snakeCollisionCheck();
-        appleCollisionCheck();
-        drawSnake(newx,newy);
-        drawApple();
-        if(countDirection == snake.size){
-            oldDirection = direction;
-            countDirection = 0;
-        }
         setTimeout(function(){
-            window.requestAnimationFrame(moveSnake);
-        },60);
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            var newx = snake.pieces[0].position.x1;
+            var newy = snake.pieces[0].position.y1;
+            switch(direction){
+                case "right":
+                    newx += snake.pieces[0].width;
+                    break;
+                case "left":
+                    newx -= snake.pieces[0].width;
+                    break;
+                case "up":
+                    newy -= snake.pieces[0].height;
+                    break;
+                case "down":
+                    newy += snake.pieces[0].height;
+                    break;    
+            }
+            wallCollisionCheck();
+            snakeCollisionCheck();
+            appleCollisionCheck();
+            drawScore();
+            drawSnake(newx,newy);
+            drawApple();
+            myreq = window.requestAnimationFrame(moveSnake);
+        },snake.velocity);
     }
 };
 
@@ -251,6 +258,11 @@ function moveSnake() {
 var snakeGrowth = function (){
     food = true;
     snake.size += 1;
+    score +=10;
+    if(score % 100 == 0)
+        snake.velocity -= 5;
+    if(snake.velocity < 0)
+        snake.velocity = 0;
 }
 
 /**
@@ -291,14 +303,30 @@ function drawStartScreen() {
 
 var restartGame = function (){
     reziseCanvas();
+    $(canvas).unbind('click');
     direction = "right";
     food = false;
     gameStatus = true;
+    score = 0;
     countDirection = 0;
     oldDirection = direction;
     snake = new Snake();
     drawNewApple();
+    drawScore();
     drawInitialSnake();
+    myreq = window.requestAnimationFrame(moveSnake);
+}
+
+/**
+ * Draws the score.
+ */
+function drawScore() {
+    context.textAlign = 'left';
+    context.fillStyle = '#000000';
+    context.font = '15px arial';
+    context.textBaseline = 'top';
+    context.fillText('Score: ' + score, 30,
+        canvas.height - 20);
 }
 
 drawStartScreen();
