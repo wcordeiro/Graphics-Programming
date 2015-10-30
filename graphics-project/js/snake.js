@@ -214,7 +214,7 @@ window.addEventListener("keydown", function(event) {
  */
 function moveSnake() {
     if(!gameStatus){
-        gameOver();
+        gameOverSnake();
         myreq = window.requestAnimationFrame(moveSnake);    
     }
     else{
