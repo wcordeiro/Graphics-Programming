@@ -21,6 +21,8 @@
   var score;
   // Variable used to cancel the request animation frame
   var myreq;
+  // Change direction validation
+  var changeDirection;
 
 /**
 * A Snake Piece.
@@ -124,11 +126,41 @@ var initSnake = function (){
     direction = "right";
     food = false;
     gameStatus = true;
+    changeDirection = true;
     score = 0;
     snake = new Snake();
     drawNewApple();
     drawScore();
     drawInitialSnake();
+    /**
+     * Move the snake base on the keyboard
+     */
+    window.addEventListener("keydown", function(event) { 
+        var offset = 0;
+        if(changeDirection){
+            switch (event.key) {
+                case "ArrowLeft":
+                    if(direction != "right" )
+                        direction = "left";
+                    break;
+                case "ArrowRight":
+                    if(direction != "left" )
+                        direction = "right";
+                    break;
+                case "ArrowUp":
+                    if(direction != "down" )
+                        direction = "up";
+                    break;
+                case "ArrowDown":
+                    if(direction != "up" )
+                        direction = "down";
+                    break;    
+                default:
+                    return;
+            }
+            changeDirection = false;
+        }
+    });
     myreq = window.requestAnimationFrame(moveSnake);
 }
 
@@ -136,7 +168,7 @@ var initSnake = function (){
  * Draws the NewApple.
  */
 function drawNewApple() {
-    apple = new Apple(parseInt(Math.random() * (canvas.width - 1) ), parseInt(Math.random() * (canvas.height - 1)));
+    apple = new Apple(parseInt(Math.random() * (canvas.width - 10) ), parseInt(Math.random() * (canvas.height - 10)));
     context.fillStyle = apple.color;
     context.fillRect(apple.position.x1, apple.position.y1, apple.width, apple.height);
 }
@@ -183,33 +215,6 @@ function drawSnake(x,y) {
 }
 
 /**
- * Move the snake base on the keyboard
- */
-window.addEventListener("keydown", function(event) { 
-    var offset = 0;
-    switch (event.key) {
-        case "ArrowLeft":
-            if(direction != "right" )
-                direction = "left";
-            break;
-        case "ArrowRight":
-            if(direction != "left" )
-                direction = "right";
-            break;
-        case "ArrowUp":
-            if(direction != "down" )
-                direction = "up";
-            break;
-        case "ArrowDown":
-            if(direction != "up" )
-                direction = "down";
-            break;    
-        default:
-            return;
-    }
-});
-
-/**
  * Move the Snake arround respecting the colissions
  */
 function moveSnake() {
@@ -239,7 +244,7 @@ function moveSnake() {
                     newy += snake.pieces[0].height;
                     break;    
             }
-
+            changeDirection = true;
             drawSnakeScore();
             drawSnake(newx,newy);
             drawApple();
@@ -302,6 +307,7 @@ var restartSnakeGame = function (){
     direction = "right";
     food = false;
     gameStatus = true;
+    changeDirection = true;
     score = 0;
     snake = new Snake();
     drawNewApple();

@@ -150,7 +150,7 @@ function paddleCollisionCheck() {
        ) {
             ball.velocity.x = -ball.velocity.x;
     } 
-    else if ( //Check Collision on the Top Left
+    if ( //Check Collision on the Top Left
         (ball.position.x1 > paddle.position.x1 && 
         ball.position.x1 < paddle.position.x2 && 
         ball.position.x2 > paddle.position.x1 && 
@@ -407,35 +407,6 @@ function moveBall() {
 }
 
 /**
- * Move the paddle base on the keyboard
- */
-window.addEventListener("keydown", function(event) { 
-    var offset = 0;
-    switch (event.key) {
-        case "ArrowLeft":
-            offset = -30;
-            break;
-        case "ArrowRight":
-            offset = 30;
-            break;
-        default:
-            return;
-    }
-    paddle.position.x2 = paddle.position.x1 + paddle.width;
-    if ((paddle.position.x1 >= 0) && (paddle.position.x2 <= canvas.width)) {
-        paddle.position.x1 += offset;
-        if (paddle.position.x1 <= 0) {
-            paddle.position.x1 = 1;
-        } 
-        else if (paddle.position.x1 >= canvas.width - paddle.width) {
-            paddle.position.x1 = canvas.width - paddle.width;
-        }
-    }
-    drawPaddle();
-    paddleCollisionCheck();
-});
-
-/**
  * Draws the score.
  */
 function drawScore() {
@@ -478,6 +449,34 @@ var initBrickBraker = function(){
     bricksRemaining = BRICK_ROWS*BRICKS_PER_ROW;
     lastscore = bricksRemaining % BRICK_ROWS; 
     drawTurns();
+    /**
+    * Move the paddle base on the keyboard
+    */
+    window.addEventListener("keydown", function(event) { 
+        var offset = 0;
+        switch (event.key) {
+            case "ArrowLeft":
+                offset = -30;
+                break;
+            case "ArrowRight":
+                offset = 30;
+                break;
+            default:
+                return;
+        }
+        paddle.position.x2 = paddle.position.x1 + paddle.width;
+        if ((paddle.position.x1 >= 0) && (paddle.position.x2 <= canvas.width)) {
+            paddle.position.x1 += offset;
+            if (paddle.position.x1 <= 0) {
+                paddle.position.x1 = 1;
+            } 
+            else if (paddle.position.x1 >= canvas.width - paddle.width) {
+                paddle.position.x1 = canvas.width - paddle.width;
+            }
+        }
+        drawPaddle();
+        paddleCollisionCheck();
+    });
     window.requestAnimationFrame(moveBall); 
 }
 
