@@ -30,7 +30,7 @@ function drawStartScreen() {
     context.fillStyle = '#000000';
     context.font = '30px Verdana bold';
     context.textBaseline = 'top';
-    context.fillText("Chose the Game:",x,100)
+    context.fillText("Chose the Game:",x,75)
     context.fillText('Brick Breaker', x, y);
     context.fillText('Snake', x, y+100);
     context.fillText('Ping Pong', x, y+200);
@@ -44,7 +44,7 @@ function gameSelection (e){
     else if(e.pageY - SCREEN_HEIGHT > 225 && e.pageY - SCREEN_HEIGHT < 300)
         drawStartSnakeScreen();
     else if(e.pageY - SCREEN_HEIGHT > 300 && e.pageY - SCREEN_HEIGHT < 400)
-        initPingPongGame();
+        drawStartPingPongScreen();
     else{
         drawStartScreen(); 
     }

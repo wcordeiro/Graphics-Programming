@@ -17,6 +17,10 @@
   var aiLifes,userLifes;
   // Game status variable
   var endPingGame;
+  // Control the following of the ball by the aiPaddle
+  var following;
+  // Count the hits, and update the speed
+  var count;
 
 /**
 * A Ball.
@@ -88,15 +92,19 @@ function drawPingPaddle(paddle) {
  */
 var initPingPongGame = function(){
     context.clearRect(0, 0, canvas.width, canvas.height);
+    $(canvas).unbind('click');
     pingBall = new PingBall();
     aiPaddle = new PingPaddle(15);
     userPaddle = new PingPaddle(canvas.width);
     drawPingBall();
     drawPingPaddle(aiPaddle);
+    drawTurns();
     drawPingPaddle(userPaddle);
     aiLifes = 3;
     userLifes = 3;
     endPingGame = "play";
+    following = true;
+    count = 1;
     /**
      * Move the paddle base on the keyboard
      */
@@ -124,7 +132,7 @@ var initPingPongGame = function(){
         }
         userPaddle.position.x2 = userPaddle.position.x1 + userPaddle.width;
     });
-   // window.requestAnimationFrame(movePingBall);
+    window.requestAnimationFrame(movePingBall);
 }
 
 /**
@@ -142,18 +150,20 @@ var pingBallWallCollisionCheck = function(){
     //Top Wall
     if(pingBall.position.y1 < 0 || pingBall.position.y2 < 0){
         aiLifes -= 1;
+        pingBall = new PingBall();
         setTimeout(function(){
-            pingBall = new PingBall();
+            count = 1;
             drawPingBall();
-        },20);
+        },30);
     }
     //Down Wall
     else if(pingBall.position.y1 > canvas.height || pingBall.position.y2 > canvas.height ){
         userLifes -= 1;
+        pingBall = new PingBall();
         setTimeout(function(){
-            pingBall = new PingBall();
+            count = 1;
             drawPingBall();
-        },20);
+        },30);
     }
 }
 
@@ -162,12 +172,22 @@ var pingBallWallCollisionCheck = function(){
  */
 var pingPaddleCollisionCheck = function(paddle){
     if (isCollidingRightLeft(pingBall, paddle)) {
+            if(count % 10 == 0){
+              pingBall.velocity.x *= 1.05;    
+            }
             pingBall.velocity.x = -pingBall.velocity.x;
     } 
     if (isCollidingTopBottom(pingBall, paddle)) {
+            if(count % 10 == 0){
+                //
+                pingBall.velocity.y *= 1.1;
+            }
             pingBall.velocity.y = -pingBall.velocity.y;
-            pingBall.center.y -= 2;
+            count += 1;
+           // console.log(paddle.position, pingBall.position);
+            return false;
     }
+    return true;
 }
 
 function moveAIPaddle() {
@@ -175,15 +195,29 @@ function moveAIPaddle() {
     //randomly pick number beteween 0 and 1
     var delayReaction = Math.random();
 
+    var delayChance = 0;
     
-    //25% chance of reaction delay
-    if(delayReaction >= 0.25) {
+    switch(aiLifes){
+        case 3 : 
+                delayChance = 0.5;
+                break;
+        case 2 :
+                delayChance = 0.25;
+                break;
+        case 1 : 
+                delayChance = 0.1;
+                break;
+        
+    }
+    
+    //chance of reaction delay depends on the turn
+    if(delayReaction >= delayChance) {
         if(pingBall.position.x1 > aiPaddle.position.x1 + aiPaddle.width) {
             if(aiPaddle.position.x1 + aiPaddle.width + 5 <= canvas.width) {
                 aiPaddle.position.x1 += 5;
             }
         }
-        else if(pingBall < aiPaddle.position.x1) {
+        else if(pingBall.position.x1 < aiPaddle.position.x1) {
             if(aiPaddle.position.x1 - 5 >= 0) {
                 aiPaddle.position.x1 -= 5;
             }
@@ -210,12 +244,13 @@ function moveAIPaddle() {
         }
     }
     aiPaddle.position.x2 = aiPaddle.position.x1 + aiPaddle.width;
+    //console.log(aiPaddle.position,pingBall.position);
 }
 
 var movePingBall = function(){
     context.clearRect(0, 0, canvas.width, canvas.height);  
     if(endPingGame != "play"){
-      //  gameOver();
+        gamePingOver();
         window.requestAnimationFrame(movePingBall);
     }
     else{
@@ -225,18 +260,96 @@ var movePingBall = function(){
         pingBall.position.y1 = pingBall.center.y - pingBall.radius;
         pingBall.position.x2 = pingBall.center.x + pingBall.radius;
         pingBall.position.y2 = pingBall.center.y + pingBall.radius;
-        moveAIPaddle();
+        if(following)
+            moveAIPaddle();
         pingBallWallCollisionCheck();
+        following = pingPaddleCollisionCheck(aiPaddle);
         pingPaddleCollisionCheck(userPaddle)
-        pingPaddleCollisionCheck(aiPaddle);
         drawPingBall();
         drawPingPaddle(userPaddle);
         drawPingPaddle(aiPaddle);
-       // exitGameCheck();
-      //  window.requestAnimationFrame(movePingBall);    
+        drawTurns();
+        exitPingGameCheck();
+        window.requestAnimationFrame(movePingBall);    
     } 
 }
 
+var exitPingGameCheck = function(){
+    if(aiLifes == 0){
+        endPingGame = "Win"
+    }
+    else if (userLifes == 0){
+        endPingGame = "Defeat"
+    }
+}
 
+/**
+ * Game Over Screen
+ */
+var gamePingOver = function(){
+    $(canvas).bind('click', restartPingPongGame);
+    var x = canvas.width / 2,
+        y = 175;
+    context.textAlign = 'center';
+    context.fillStyle = '#000000';
+    context.font = '30px Verdana bold';
+    context.textBaseline = 'top';
+    context.fillText(endPingGame.toUpperCase(), x, y);
+    context.font = '15px Arial';
+    context.fillStyle = '#000000';
+    context.fillText('Click on screen to restart', x, y + 125);
+}
+
+/**
+ * Restart the variables
+ */
+var restartPingPongGame = function(){
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    $(canvas).unbind('click');
+    pingBall = new PingBall();
+    aiPaddle = new PingPaddle(15);
+    userPaddle = new PingPaddle(canvas.width);
+    drawPingBall();
+    drawPingPaddle(aiPaddle);
+    drawPingPaddle(userPaddle);
+    drawTurns();
+    aiLifes = 3;
+    userLifes = 3;
+    endPingGame = "play";
+    following = true;
+    count = 1;
+}
+
+/**
+ * Draws the start screen.
+ */
+function drawStartPingPongScreen() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    reziseCanvas();
+    $(canvas).bind('click', initPingPongGame);
+    var x = canvas.width / 2,
+        y = 175;
+    context.textAlign = 'center';
+    context.fillStyle = '#000000';
+    context.font = '30px Verdana bold';
+    context.textBaseline = 'top';
+    context.fillText('Ping Pong', x, y);
+    context.font = '15px Arial';
+    context.fillStyle = '#000000';
+    context.fillText('Click on screen to start', x, y + 125);
+}
+
+/**
+ * Draws the turns on the screen.
+ */
+function drawTurns() {
+    context.textAlign = 'left';
+    context.fillStyle = '#000000';
+    context.font = '15px arial';
+    context.textBaseline = 'top';
+    context.fillText('Lifes: ' + aiLifes, 10,10);
+    context.fillText('Lifes: ' + userLifes, canvas.width - 50,
+        canvas.height - 20);
+}
 
 
