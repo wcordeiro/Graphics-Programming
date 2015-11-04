@@ -98,7 +98,7 @@ var initPingPongGame = function(){
     userPaddle = new PingPaddle(canvas.width);
     drawPingBall();
     drawPingPaddle(aiPaddle);
-    drawTurns();
+    drawPingTurns();
     drawPingPaddle(userPaddle);
     aiLifes = 3;
     userLifes = 3;
@@ -268,7 +268,7 @@ var movePingBall = function(){
         drawPingBall();
         drawPingPaddle(userPaddle);
         drawPingPaddle(aiPaddle);
-        drawTurns();
+        drawPingTurns();
         exitPingGameCheck();
         window.requestAnimationFrame(movePingBall);    
     } 
@@ -312,7 +312,7 @@ var restartPingPongGame = function(){
     drawPingBall();
     drawPingPaddle(aiPaddle);
     drawPingPaddle(userPaddle);
-    drawTurns();
+    drawPingTurns();
     aiLifes = 3;
     userLifes = 3;
     endPingGame = "play";
@@ -342,7 +342,7 @@ function drawStartPingPongScreen() {
 /**
  * Draws the turns on the screen.
  */
-function drawTurns() {
+function drawPingTurns() {
     context.textAlign = 'left';
     context.fillStyle = '#000000';
     context.font = '15px arial';
