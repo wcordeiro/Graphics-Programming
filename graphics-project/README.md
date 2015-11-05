@@ -75,7 +75,8 @@ To chose the game between the games you should press on top of the name on the i
     The game can be restarted by clicking in the screen.
     
 ####Game Libraries Used
-    No Gaming/Physics Libraries/Frameworks used. All Custom Code and Custom Physics. Only jQuery used for quick and few DOM manipulations.
+    
+No Gaming/Physics Libraries/Frameworks used. All Custom Code and Custom Physics. Only jQuery used for quick and few DOM manipulations.
     
     
 
