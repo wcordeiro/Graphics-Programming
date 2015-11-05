@@ -1,2 +1,2 @@
-#Graphics Programming Project
-Wilson Cordeiro - G00330453
+#Graphics Programming Project - Game Collection
+ by Wilson Cordeiro - G00330453
