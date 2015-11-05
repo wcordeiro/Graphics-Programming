@@ -299,7 +299,7 @@ function brickCollisionCheck() {
                         bricksRemaining -= 1;
                         if(bricksRemaining % BRICK_ROWS < lastscore){
                             lastscore = bricksRemaining % BRICK_ROWS;
-                            ball.velocity.y += 0.2;
+                            ball.velocity.y *= 1.5;
                         }
                         ball.velocity.y = -ball.velocity.y;
                         ball.center.y -= 2;

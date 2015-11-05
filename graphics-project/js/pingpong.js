@@ -173,14 +173,14 @@ var pingBallWallCollisionCheck = function(){
 var pingPaddleCollisionCheck = function(paddle){
     if (isCollidingRightLeft(pingBall, paddle)) {
             if(count % 10 == 0){
-              pingBall.velocity.x *= 1.05;    
+              pingBall.velocity.x *= 1.3;    
             }
             pingBall.velocity.x = -pingBall.velocity.x;
     } 
     if (isCollidingTopBottom(pingBall, paddle)) {
             if(count % 10 == 0){
                 //
-                pingBall.velocity.y *= 1.1;
+                pingBall.velocity.y *= 1.5;
             }
             pingBall.velocity.y = -pingBall.velocity.y;
             count += 1;
