@@ -3,9 +3,9 @@
 
 This is the README for the Game Collection, which includes details about the games including instructions detailing how to play each of the games.
 
-The Collection is compose by three games: Brick Breaker, Snake, and Ping Pong.
+The Collection is composed by three games: Brick Breaker, Snake, and Ping Pong.
 
-To chose the game between the games you should press on top of the name on the initial screen.
+To chose between the games you should press on top of the name on the initial screen.
 
 ####Brick Breaker
 
@@ -25,11 +25,11 @@ To chose the game between the games you should press on top of the name on the i
 
     To move the paddle, use the arrow keys on the Keyboard.
 
-    The game restart automatically after the ball is drop.
+    The game will  restart automatically after the ball is drop.
 
     You have 3 lives.
     
-    The game can be restarted by clicking in the screen.
+    The game can be restarted by clicking on the screen.
         
 ####Snake
 
@@ -49,7 +49,7 @@ To chose the game between the games you should press on top of the name on the i
 
     You have only one life.
     
-    The game can be restarted by clicking in the screen.
+    The game can be restarted by clicking on the screen.
     
 ####Ping Pong
 
@@ -68,18 +68,12 @@ To chose the game between the games you should press on top of the name on the i
 
     To start the game, click on the screen and pay attention because the game is on.
 
-    To move the snake, use the arrow keys on the Keyboard.
+    To move the paddle, use the arrow keys on the Keyboard.
 
-    You have only one life.
+    You have three lives.
     
     The game can be restarted by clicking in the screen.
     
 ####Game Libraries Used
     
 No Gaming/Physics Libraries/Frameworks used. All Custom Code and Custom Physics. Only jQuery used for quick and few DOM manipulations.
-    
-    
-
-        
-        
-
